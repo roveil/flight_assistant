@@ -1,0 +1,42 @@
+dist: focal
+sudo: required
+language: python
+cache:
+  pip: true
+
+services:
+  - postgresql
+  - rabbitmq
+  - redis
+
+addons:
+  apt:
+    packages:
+      - wkhtmltopdf
+
+python:
+  - 3.7
+  - 3.8
+  - 3.9
+
+env:
+  - DB_NAME=flight_assistant DB_USER=db_user DB_PASSWORD=db_password DB_HOST=localhost
+before_install:
+  # increase /var/ramfs size
+  - sudo mount -o remount,size=50% /var/ramfs
+
+install:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+  - sudo systemctl restart postgresql
+
+before_script:
+  - psql -tc 'SHOW server_version' -U postgres
+  - psql -c 'CREATE ROLE db_user;' -U postgres
+  - psql -c 'ALTER ROLE db_user WITH SUPERUSER;' -U postgres
+  - psql -c 'ALTER ROLE db_user WITH LOGIN;' -U postgres
+  - psql -c "ALTER ROLE db_user PASSWORD 'db_password';" -U postgres
+  - psql -c 'CREATE DATABASE flight_assistant OWNER db_user;' -U postgres
+
+script:
+  pytest

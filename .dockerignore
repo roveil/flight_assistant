@@ -1,0 +1,8 @@
+.git*
+.travis.yml
+.idea
+*/__pycache__/*
+*/.pytest_cache/*
+README.md
+Dockerfile
+docker-compose.yml

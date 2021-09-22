@@ -1,0 +1,82 @@
+version: '3.7'
+
+x-application: &application
+  env_file:
+    - .env
+  deploy:
+    resources:
+      limits:
+        cpus: "1"
+        memory: 512M
+    restart_policy:
+      condition: any
+  networks:
+    - net
+
+x-services: &services
+  deploy:
+    resources:
+      limits:
+        cpus: "1"
+        memory: 512M
+    restart_policy:
+      condition: any
+  networks:
+    - net
+
+
+services:
+  base:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - local/${APP_NAME:-app}
+
+    image: local/${APP_NAME:-app}:latest
+
+  app:
+    <<: *application
+    image: local/${APP_NAME:-app}:latest
+    ports:
+      - "${UVICORN_HTTP_PORT}:${UVICORN_HTTP_PORT}/tcp"
+    command:
+      - sh
+      - -c
+      - |
+        cd /app/src;
+        alembic upgrade head;
+        /app/src/docker-entrypoint.sh
+    depends_on:
+      - db
+
+  db:
+    <<: *services
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5432/tcp
+    volumes:
+      - postgres-data:/var/lib/postgresql/data:rw,consistent
+
+  redis:
+    <<: *services
+    image: redis:latest
+    ports:
+      - 6379/tcp
+    volumes:
+      - redis-data:/data:rw,consistent
+
+
+networks:
+  net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-flight
+
+volumes:
+  postgres-data: {}
+  redis-data: {}

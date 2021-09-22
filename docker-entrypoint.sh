@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+UVICORN_HTTP_HOST=${UVICORN_HTTP_HOST:-0.0.0.0}
+UVICORN_HTTP_PORT=${UVICORN_HTTP_PORT:-6000}
+UVICORN_WORKERS=${UVICORN_WORKERS:-2}
+UVICORN_LOG_LEVEL=${UVICORN_LOG_LEVEL:-info}
+
+echo PWD: `pwd`
+echo ID: `id`
+echo HOME: $HOME
+
+uvicorn core.main:app --host ${UVICORN_HTTP_HOST} --port ${UVICORN_HTTP_PORT} --workers ${UVICORN_WORKERS} \
+  --log-level ${UVICORN_LOG_LEVEL}

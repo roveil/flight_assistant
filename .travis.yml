@@ -9,8 +9,15 @@ services:
   - rabbitmq
   - redis
 
+addons:
+  apt:
+    packages:
+      - wkhtmltopdf
+
 python:
+  - 3.7
   - 3.8
+  - 3.9
 
 env:
   - DB_NAME=flight_assistant DB_USER=db_user DB_PASSWORD=db_password DB_HOST=localhost

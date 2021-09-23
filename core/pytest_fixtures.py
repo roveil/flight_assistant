@@ -45,10 +45,10 @@ async def flush_test_database():
         yield
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 async def async_client() -> AsyncClient:
     """
-    Creates http client for each unit test session
+    Creates http client for each unit test
     :return: AsyncClient
     """
     from core.main import app

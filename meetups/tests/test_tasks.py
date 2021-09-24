@@ -16,7 +16,7 @@ class TestCleaningQueueTask:
         last_ts, last_user_id = await meetup_map.get_last_user_from_queue()
         assert last_user_id == 100500
 
-        await clean_meetup_redis_queues()
+        await clean_meetup_redis_queues(save_interval=0)
 
         result = await redis.zrangebyscore(meetup_map.queue_redis_key, 0, '+inf')
 
